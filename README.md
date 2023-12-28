@@ -5,6 +5,7 @@ This is a quick-code script that displays SSL certificate information for the sp
 
 ## Requirements
 To run this script you need at least `PHP v8.1.x` with `php-curl` library.
+This script requires acces to Bootstrap CDN so you will need acces to internet from the server.
 
 ## Installation
 You just need to copy `index.php` to your server document root. You can rename this file.
