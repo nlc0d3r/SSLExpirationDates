@@ -6,6 +6,17 @@
 	 */
 
 	/**
+	 * Domain list
+	 */
+	$DomainList = [
+		"notexistingdomain.xyz",
+		"google.com",
+		"facebook.com",
+		"twitch.com",
+		"",
+	];
+
+	/**
 	 * Script configuration
 	 */
 	$Config = [
@@ -25,15 +36,7 @@
 		"ALERT_DANGER"	=> 2, // Days before SSL expire to show red
 
 		"HTML_WARN_DAYSOFFSET"	=> "Day offset is set to: ",
-	];
-
-	/**
-	 * Domain list
-	 */
-	$DomainList = [
-		"google.com",
-		"facebook.com",
-		"twitch.com",
+		"HTML_WARN_UNREACHABLE"	=> "Domain is unreachable.",
 	];
 
 	/**
@@ -65,56 +68,84 @@
 			$this->getCertData();
 		}
 
+		public function cURLConnector( $Domain, $mode )
+		{
+			$curl = curl_init();
+			curl_setopt_array( $curl, [
+				CURLOPT_URL		=> "https://". $Domain,
+				CURLOPT_NOBODY		=> true,
+				CURLOPT_VERBOSE		=> true,
+				CURLOPT_CERTINFO	=> true,
+				CURLOPT_AUTOREFERER	=> true,
+				CURLOPT_FOLLOWLOCATION	=> true,
+				CURLOPT_RETURNTRANSFER	=> true,
+				CURLOPT_SSL_VERIFYPEER	=> false,
+				CURLOPT_SSL_VERIFYHOST	=> false,
+				CURLOPT_CONNECTTIMEOUT	=> 5,
+				CURLOPT_MAXREDIRS	=> 1,
+				CURLOPT_TIMEOUT		=> 5,
+				CURLOPT_ENCODING	=> "",
+				CURLOPT_USERAGENT	=> "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+			]);
+			$result = curl_exec( $curl );
+			$certInfo = curl_getinfo( $curl, CURLINFO_CERTINFO );
+			$respCode = curl_getinfo( $curl, CURLINFO_RESPONSE_CODE );
+			curl_close($curl);
+
+			switch ( $mode ) {
+				case 'conn':
+					return $respCode;
+					break;
+				case 'cert':
+					return $certInfo;
+					break;
+			}
+		}
+
 		public function getCertData()
 		{
 			foreach ( $this->DOMAIN_LIST as $Key => $Domain ) {
 				
-				// cURL request
-				$curl = curl_init();
-				curl_setopt_array( $curl, [
-					CURLOPT_URL		=> "https://". $Domain,
-					CURLOPT_NOBODY		=> true,
-					CURLOPT_VERBOSE		=> true,
-					CURLOPT_CERTINFO	=> true,
-					CURLOPT_AUTOREFERER	=> true,
-					CURLOPT_FOLLOWLOCATION	=> true,
-					CURLOPT_RETURNTRANSFER	=> true,
-					CURLOPT_SSL_VERIFYPEER	=> false,
-					CURLOPT_SSL_VERIFYHOST	=> false,
-					CURLOPT_CONNECTTIMEOUT	=> 5,
-					CURLOPT_MAXREDIRS	=> 1,
-					CURLOPT_TIMEOUT		=> 5,
-					CURLOPT_ENCODING	=> "",
-					CURLOPT_USERAGENT	=> "Mozilla/5.0",
-				]);
-				$result = curl_exec( $curl );
-				$certInfo = curl_getinfo( $curl, CURLINFO_CERTINFO );
-				curl_close($curl);
+				if ( $this->cURLConnector( $Domain, 'conn' ) !== 0 )
+				{
+					$certInfo = $this->cURLConnector( $Domain, 'cert' );
+					
+					// Parsing data
+					$_CERT_STR = date( "d.m.Y H:i:s", strtotime( $certInfo[0]['Start date'] ) );
+					$_CERT_EXP = date( "d.m.Y H:i:s", strtotime( $certInfo[0]['Expire date'] ) );
+					$_CERT_LFT = floor( ( strtotime( $certInfo[0]['Expire date'] ) - strtotime( $this->DATE ) ) / 86400 );
 
-				// Parsing data
-				$_CERT_STR = date( "d.m.Y H:i:s", strtotime( $certInfo[0]['Start date'] ) );
-				$_CERT_EXP = date( "d.m.Y H:i:s", strtotime( $certInfo[0]['Expire date'] ) );
-				$_CERT_LFT = floor( ( strtotime( $certInfo[0]['Expire date'] ) - strtotime( $this->DATE ) ) / 86400 );
+					if( $_CERT_LFT <= $this->CFG['ALERT_DANGER'] ){
+						$_COLOR = 'danger';
+					} else if( $_CERT_LFT <= $this->CFG['ALERT_WARNING'] ){
+						$_COLOR = 'warning';
+					} else {
+						$_COLOR = 'success';
+					}
 
-				if( $_CERT_LFT <= $this->CFG['ALERT_DANGER'] ){
-					$_COLOR = 'danger';
-				} else if( $_CERT_LFT <= $this->CFG['ALERT_WARNING'] ){
-					$_COLOR = 'warning';
+					preg_match( '/O\s\=\s([^,]+)/', $certInfo[0]['Issuer'], $match );
+					$_CERT_ISR = trim( $match[1], ' ".' ?? '' );
+
+					$this->OUTPUT_LIST[] = [
+						"Domain"	=> $Domain,
+						"Issuer"	=> $_CERT_ISR,
+						"DaysLeft"	=> $_CERT_LFT,
+						"Start"		=> $_CERT_STR,
+						"End"		=> $_CERT_EXP,
+						"State"		=> $_COLOR,
+						"OnLine"	=> true,
+					];
 				} else {
-					$_COLOR = 'success';
+					$this->OUTPUT_LIST[] = [
+						"Domain"	=> $Domain,
+						"Issuer"	=> false,
+						"DaysLeft"	=> '1000000',
+						"Start"		=> false,
+						"End"		=> false,
+						"State"		=> 'secondary',
+						"OnLine"	=> false,
+					];
 				}
-
-				preg_match( '/O\s\=\s([^,]+)/', $certInfo[0]['Issuer'], $match );
-				$_CERT_ISR = trim( $match[1], ' ".' ?? '' );
-
-				$this->OUTPUT_LIST[] = [
-					"Domain"	=> $Domain,
-					"Issuer"	=> $_CERT_ISR,
-					"DaysLeft"	=> $_CERT_LFT,
-					"Start"		=> $_CERT_STR,
-					"End"		=> $_CERT_EXP,
-					"State"		=> $_COLOR,
-				];
 			}
 
 			// Array sorting by Daysleft
@@ -138,12 +169,23 @@
 							</a>
 							<span class="domain">'. $item['Domain'] .'</span>
 						</td>
+				';
+				if ( $item['OnLine'] )
+				{
+					echo '
 						<td>'. $item['Issuer'] .'</td>
 						<td>'. $item['DaysLeft'] .'</td>
 						<td>'. $item['Start'] .'</td>
 						<td>'. $item['End'] .'</td>
-					</tr>
-				';
+					';
+				} else {
+					echo '
+						<td colspan="4">
+							<span class="text-danger"><i class="bi bi-ban"></i> '. $this->CFG['HTML_WARN_UNREACHABLE'] .'</span>
+						</td>
+					';	
+				}
+				echo '</tr>';
 				$seq++;
 			}
 		}
