@@ -36,7 +36,7 @@
 		"ALERT_DANGER"	=> 2, // Days before SSL expire to show red
 
 		"HTML_WARN_DAYSOFFSET"	=> "Day offset is set to: ",
-		"HTML_WARN_UNREACHABLE"	=> "Domain is unreachable.",
+		"HTML_WARN_UNREACHABLE"	=> "Domain is not reachable.",
 	];
 
 	/**
