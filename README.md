@@ -4,4 +4,4 @@ This is a quick-code script that displays SSL certificate information for the sp
 ![Demo Screenshot](demo.png)
 
 ## Requirements
-To run this script you need at least `PHP v8.1.x` with `php-curl lib`.
+To run this script you need at least `PHP v8.1.x` with `php-curl` library.
