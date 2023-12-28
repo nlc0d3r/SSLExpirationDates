@@ -15,8 +15,8 @@
 		"HTML_ISSUER"	=> "Issuer",
 		"HTML_DAYSLEFT"	=> "Days left",
 		"HTML_STARTS"	=> "Starts",
-		"HTML_ENDS"		=> "Expires",
-		"HTML_OPEN"		=> "Open",
+		"HTML_ENDS"	=> "Expires",
+		"HTML_OPEN"	=> "Open",
 		// Debugging
 		"DEBUG_MODE"	=> true,
 		"DEBUG_DAYS"	=> 40, // Parametter to test alerts. Adds day offset if greater than 0. 
