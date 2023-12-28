@@ -23,6 +23,8 @@
 		// Alerts
 		"ALERT_WARNING"	=> 10, // Days before SSL expire to show orange
 		"ALERT_DANGER"	=> 2, // Days before SSL expire to show red
+
+		"HTML_WARN_DAYSOFFSET"	=> "Day offset is set to: ",
 	];
 
 	/**
@@ -70,20 +72,20 @@
 				// cURL request
 				$curl = curl_init();
 				curl_setopt_array( $curl, [
-					CURLOPT_URL				=> "https://". $Domain,
-					CURLOPT_NOBODY			=> true,
-					CURLOPT_VERBOSE			=> true,
-					CURLOPT_CERTINFO		=> true,
-					CURLOPT_AUTOREFERER		=> true,
+					CURLOPT_URL		=> "https://". $Domain,
+					CURLOPT_NOBODY		=> true,
+					CURLOPT_VERBOSE		=> true,
+					CURLOPT_CERTINFO	=> true,
+					CURLOPT_AUTOREFERER	=> true,
 					CURLOPT_FOLLOWLOCATION	=> true,
 					CURLOPT_RETURNTRANSFER	=> true,
 					CURLOPT_SSL_VERIFYPEER	=> false,
 					CURLOPT_SSL_VERIFYHOST	=> false,
 					CURLOPT_CONNECTTIMEOUT	=> 5,
-					CURLOPT_MAXREDIRS		=> 1,
-					CURLOPT_TIMEOUT			=> 5,
-					CURLOPT_ENCODING		=> "",
-					CURLOPT_USERAGENT		=> "Mozilla/5.0",
+					CURLOPT_MAXREDIRS	=> 1,
+					CURLOPT_TIMEOUT		=> 5,
+					CURLOPT_ENCODING	=> "",
+					CURLOPT_USERAGENT	=> "Mozilla/5.0",
 				]);
 				$result = curl_exec( $curl );
 				$certInfo = curl_getinfo( $curl, CURLINFO_CERTINFO );
@@ -170,6 +172,14 @@
 				$this->DATE = date( "d.m.Y H:i:s", strtotime( $date .' + '. $days .' day' ));
 			}
 		}
+
+		public function dayOffsetWarning()
+		{
+			if ( $this->CFG['DEBUG_DAYS'] > 0 )
+			{
+				return $this->CFG['HTML_WARN_DAYSOFFSET'] . $this->CFG['DEBUG_DAYS'];
+			}
+		}
 	}
 
 	$C = new CertExp( $Config, $DomainList );
@@ -196,7 +206,12 @@
 		<div class="container-fluid">
 			<div class="d-flex justify-content-between align-items-center">
 				<div class="p-2"><h2><?=$C->CFG['HTML_TITLE']?></h2></div>
-				<div class="p-2"><?=$C->DATE?></div>
+				<div class="p-2">
+					<span<?php echo ( $C->CFG['DEBUG_DAYS'] > 0 ) ? ' class="text-danger"' : ' class="text-success"' ?>>
+						<?=$C->DATE?><br>
+						<?=$C->dayOffsetWarning()?>
+					</span>
+				</div>
 			</div>
 			<table class="table table-hover">
 				<thead class="thead-dark">
