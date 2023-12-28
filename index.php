@@ -19,7 +19,7 @@
 		"HTML_OPEN"	=> "Open",
 		// Debugging
 		"DEBUG_MODE"	=> true,
-		"DEBUG_DAYS"	=> 40, // Parametter to test alerts. Adds day offset if greater than 0. 
+		"DEBUG_DAYS"	=> 0, // Parametter to test alerts. Adds day offset if greater than 0. 
 		// Alerts
 		"ALERT_WARNING"	=> 10, // Days before SSL expire to show orange
 		"ALERT_DANGER"	=> 2, // Days before SSL expire to show red
