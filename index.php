@@ -26,8 +26,8 @@
 		"HTML_ISSUER"	=> "Issuer",
 		"HTML_DAYSLEFT"	=> "Days left",
 		"HTML_STARTS"	=> "Starts",
-		"HTML_ENDS"	=> "Expires",
-		"HTML_OPEN"	=> "Open",
+		"HTML_ENDS"		=> "Expires",
+		"HTML_OPEN"		=> "Open",
 		// Debugging
 		"DEBUG_MODE"	=> true,
 		"DEBUG_DAYS"	=> 0, // Parametter to test alerts. Adds day offset if greater than 0. 
@@ -72,20 +72,20 @@
 		{
 			$curl = curl_init();
 			curl_setopt_array( $curl, [
-				CURLOPT_URL		=> "https://". $Domain,
-				CURLOPT_NOBODY		=> true,
-				CURLOPT_VERBOSE		=> true,
-				CURLOPT_CERTINFO	=> true,
-				CURLOPT_AUTOREFERER	=> true,
+				CURLOPT_URL				=> "https://". $Domain,
+				CURLOPT_NOBODY			=> true,
+				CURLOPT_VERBOSE			=> true,
+				CURLOPT_CERTINFO		=> true,
+				CURLOPT_AUTOREFERER		=> true,
 				CURLOPT_FOLLOWLOCATION	=> true,
 				CURLOPT_RETURNTRANSFER	=> true,
 				CURLOPT_SSL_VERIFYPEER	=> false,
 				CURLOPT_SSL_VERIFYHOST	=> false,
 				CURLOPT_CONNECTTIMEOUT	=> 5,
-				CURLOPT_MAXREDIRS	=> 1,
-				CURLOPT_TIMEOUT		=> 5,
-				CURLOPT_ENCODING	=> "",
-				CURLOPT_USERAGENT	=> "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+				CURLOPT_MAXREDIRS		=> 1,
+				CURLOPT_TIMEOUT			=> 5,
+				CURLOPT_ENCODING		=> "",
+				CURLOPT_USERAGENT		=> "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
 			]);
 			$result = curl_exec( $curl );
 			$certInfo = curl_getinfo( $curl, CURLINFO_CERTINFO );
