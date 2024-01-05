@@ -30,7 +30,8 @@
 		"HTML_OPEN"	=> "Open",
 		// Debugging
 		"DEBUG_MODE"	=> true,
-		"DEBUG_DAYS"	=> 0, // Parametter to test alerts. Adds day offset if greater than 0. 
+		"DEBUG_INFO"	=> true,
+		"DEBUG_DAYS"	=> 0, // Parametter to test alerts. Adds day offset if greater than 0.
 		// Alerts
 		"ALERT_WARNING"	=> 10, // Days before SSL expire to show orange
 		"ALERT_DANGER"	=> 2, // Days before SSL expire to show red
@@ -222,6 +223,22 @@
 				return $this->CFG['HTML_WARN_DAYSOFFSET'] . $this->CFG['DEBUG_DAYS'];
 			}
 		}
+
+		public function info()
+		{
+			$info = [
+				"PHP"	=> phpversion(),
+				"cURL"	=> function_exists('curl_getinfo')
+			];
+
+			echo '<table class="m-2">';
+			foreach ( $info as $key => $value )
+			{
+				$value = ( ( $value == 1 ) || ( $value == 0 ) ) ? json_encode( $value ) : $value;
+				echo '<tr><td style="width: 60px;">'. $key .':</td><td>'. $value .'</td></tr>';
+			}
+			echo '</table>';
+		}
 	}
 
 	$C = new CertExp( $Config, $DomainList );
@@ -270,6 +287,7 @@
 					<?php $C->makeOutput(); ?>
 				</tbody>
 			</table>
+			<?php echo ( $C->CFG['DEBUG_INFO'] ) ? $C->info() : false; ?>
 		</div>
 
 		<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
