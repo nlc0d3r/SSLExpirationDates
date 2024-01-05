@@ -29,8 +29,8 @@
 		"HTML_ENDS"	=> "Expires",
 		"HTML_OPEN"	=> "Open",
 		// Debugging
-		"DEBUG_MODE"	=> true,
-		"DEBUG_INFO"	=> true,
+		"DEBUG_MODE"	=> false,
+		"DEBUG_INFO"	=> false,
 		"DEBUG_DAYS"	=> 0, // Parametter to test alerts. Adds day offset if greater than 0.
 		// Alerts
 		"ALERT_WARNING"	=> 10, // Days before SSL expire to show orange
